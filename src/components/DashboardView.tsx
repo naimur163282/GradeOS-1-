@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { 
   CheckCircle2, 
   Clock, 
@@ -124,11 +125,11 @@ export default function DashboardView({ subjects, deadlines, onViewSubjects, onV
         {/* Course Overview Quick List */}
         <div className="lg:col-span-1 bento-card space-y-5">
           <div className="text-[10px] font-bold text-[#8b949e] uppercase tracking-widest mb-2">Subject Progress</div>
-          {subjects.map(s => (
+          {(subjects || []).map(s => (
             <div key={s.id} className="space-y-2">
               <div className="flex justify-between items-center px-1">
-                <span className="text-[11px] font-bold text-[#c9d1d9]">{s.name.split(' ').pop()?.toUpperCase()}</span>
-                <span className="text-[11px] font-mono font-bold text-[#8b949e]">{s.readiness}%</span>
+                <span className="text-[11px] font-bold text-[#c9d1d9]">{(s.name || 'Subject').split(' ').pop()?.toUpperCase()}</span>
+                <span className="text-[11px] font-mono font-bold text-[#8b949e]">{s.readiness || 0}%</span>
               </div>
               <div className="h-1.5 w-full bg-[#21262d] rounded-full overflow-hidden border border-white/5">
                 <div 

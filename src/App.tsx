@@ -35,13 +35,25 @@ export default function App() {
   
   // Persistence Layer: Initialize from Local Storage or Defaults
   const [subjects, setSubjects] = useState<Subject[]>(() => {
-    const saved = localStorage.getItem('gradeos_subjects');
-    return saved ? JSON.parse(saved) : MOCK_SUBJECTS;
+    try {
+      const saved = localStorage.getItem('gradeos_subjects');
+      const parsed = saved ? JSON.parse(saved) : null;
+      return Array.isArray(parsed) ? parsed : MOCK_SUBJECTS;
+    } catch (e) {
+      console.error("Failed to parse subjects from localStorage", e);
+      return MOCK_SUBJECTS;
+    }
   });
   
   const [deadlines, setDeadlines] = useState<Deadline[]>(() => {
-    const saved = localStorage.getItem('gradeos_deadlines');
-    return saved ? JSON.parse(saved) : MOCK_DEADLINES;
+    try {
+      const saved = localStorage.getItem('gradeos_deadlines');
+      const parsed = saved ? JSON.parse(saved) : null;
+      return Array.isArray(parsed) ? parsed : MOCK_DEADLINES;
+    } catch (e) {
+      console.error("Failed to parse deadlines from localStorage", e);
+      return MOCK_DEADLINES;
+    }
   });
 
   const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(null);

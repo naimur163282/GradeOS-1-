@@ -26,6 +26,20 @@ async function startServer() {
     });
     app.use(vite.middlewares);
     console.log("Vite development middleware integrated");
+
+    // SPA fallback: serves index.html for any request that doesn't match an asset
+    app.get('*', async (req, res, next) => {
+      const url = req.originalUrl;
+      try {
+        const fs = await import('fs/promises');
+        let template = await fs.readFile(path.resolve(__dirname, 'index.html'), 'utf-8');
+        template = await vite.transformIndexHtml(url, template);
+        res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
+      } catch (e) {
+        vite.ssrFixStacktrace(e);
+        next(e);
+      }
+    });
   } else {
     // Static file serving for production
     const distPath = path.join(process.cwd(), 'dist');
