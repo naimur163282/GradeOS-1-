@@ -30,8 +30,15 @@ type DashboardViewProps = {
 };
 
 export default function DashboardView({ subjects, deadlines, onViewSubjects, onViewPlanner }: DashboardViewProps) {
-  const averageReadiness = Math.round(subjects.reduce((acc, sub) => acc + sub.readiness, 0) / subjects.length);
+  const averageReadiness = Math.round(subjects.reduce((acc, sub) => acc + sub.readiness, 0) / Math.max(subjects.length, 1));
   
+  const greeting = useMemo(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 17) return "Good afternoon";
+    return "Good evening";
+  }, []);
+
   const chartData = subjects.map(s => ({ name: s.name, readiness: s.readiness }));
 
   return (
@@ -39,10 +46,10 @@ export default function DashboardView({ subjects, deadlines, onViewSubjects, onV
       {/* Welcome & Stats Row */}
       <section className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black text-white tracking-tight">Good morning, Naimur</h1>
-          <p className="text-[#8b949e] mt-2 font-medium">Your academic operating system is optimized. 3 reviews pending.</p>
+          <h1 className="text-4xl font-black text-white tracking-tight">{greeting}, Cadet</h1>
+          <p className="text-[#8b949e] mt-2 font-medium">Your Local Academic OS is active. Details remain on this device.</p>
         </div>
-        <div className="flex gap-4 w-full md:w-auto">
+        <div className="flex gap-4 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
           <div className="flex-1 md:flex-initial bento-card flex items-center gap-5 min-w-[200px]">
             <div className="w-14 h-14 rounded-2xl bg-[#3fb950]/10 flex items-center justify-center text-[#3fb950] border border-[#3fb950]/20">
               <TrendingUp size={28} />
@@ -90,20 +97,28 @@ export default function DashboardView({ subjects, deadlines, onViewSubjects, onV
         </div>
 
         {/* Review Queue Card */}
-        <div className="lg:col-span-1 bento-card bg-[#1c2128] border-[#30363d] flex flex-col justify-between">
+        <div className="lg:col-span-1 bento-card bg-[#1c2128] border-[#3fb950]/30 shadow-[0_0_20px_rgba(63,185,80,0.05)] flex flex-col justify-between group hover:border-[#3fb950] transition-colors">
           <div>
-            <div className="text-[10px] font-bold text-[#8b949e] uppercase tracking-widest mb-4 flex items-center gap-2">
-              <Clock size={14} />
-              Review Queue
+            <div className="text-[10px] font-bold text-[#3fb950] uppercase tracking-widest mb-4 flex items-center gap-2">
+              <CheckCircle2 size={14} />
+              Quick Actions
             </div>
-            <div className="text-6xl font-light text-[#58a6ff] mb-2 tracking-tighter">12</div>
-            <p className="text-sm text-[#c9d1d9] leading-relaxed">
-              concepts are about to fade. <span className="text-[#58a6ff] font-bold">15 mins</span> now solidifies them.
+            <div className="space-y-3">
+              <button onClick={onViewSubjects} className="w-full flex items-center justify-between p-3 rounded-xl bg-[#0b0e14] border border-[#30363d] hover:border-[#58a6ff] hover:bg-[#161b22] transition-all group/btn">
+                <span className="text-xs font-bold text-[#c9d1d9]">Add New Subject</span>
+                <ChevronRight size={14} className="text-[#8b949e] group-hover/btn:text-[#58a6ff]" />
+              </button>
+              <button onClick={onViewPlanner} className="w-full flex items-center justify-between p-3 rounded-xl bg-[#0b0e14] border border-[#30363d] hover:border-[#58a6ff] hover:bg-[#161b22] transition-all group/btn">
+                <span className="text-xs font-bold text-[#c9d1d9]">Set Deadline</span>
+                <ChevronRight size={14} className="text-[#8b949e] group-hover/btn:text-[#58a6ff]" />
+              </button>
+            </div>
+          </div>
+          <div className="mt-6 pt-4 border-t border-[#30363d]/50">
+            <p className="text-[10px] text-[#8b949e] font-medium leading-relaxed italic">
+              "Failing to plan is planning to fail."
             </p>
           </div>
-          <button className="mt-4 w-full py-2.5 bg-[#161b22] border border-[#30363d] rounded-xl text-xs font-bold text-[#58a6ff] hover:bg-[#30363d] transition-all">
-            Start Session
-          </button>
         </div>
 
         {/* Course Overview Quick List */}
