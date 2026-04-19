@@ -1,15 +1,10 @@
 <div align="center">
 
-```
-███╗   ██╗ █████╗ ██╗███╗   ███╗██╗   ██╗██████╗
-████╗  ██║██╔══██╗██║████╗ ████║██║   ██║██╔══██╗
-██╔██╗ ██║███████║██║██╔████╔██║██║   ██║██████╔╝
-██║╚██╗██║██╔══██║██║██║╚██╔╝██║██║   ██║██╔══██╗
-██║ ╚████║██║  ██║██║██║ ╚═╝ ██║╚██████╔╝██║  ██║
-╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═╝
-```
+<img src="https://i.ibb.co/HfJH0SNP/1000178339.jpg" width="160" alt="Md. Naimur Rashid" />
 
-<img src="https://i.ibb.co/HfJH0SNP/1000178339.jpg" width="120" height="120" style="border-radius: 50%;" alt="Md. Naimur Rashid" />
+<h1>Md. Naimur Rashid</h1>
+
+<p><em>Textile Engineer &amp; Denim Washing Specialist &nbsp;|&nbsp; Web Developer &nbsp;|&nbsp; PGD Candidate — IBA, University of Dhaka</em></p>
 
 ### `Textile Engineer` · `Denim Washing Specialist` · `Web Developer` · `PGD Candidate`
 
