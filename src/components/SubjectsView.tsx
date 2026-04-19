@@ -25,7 +25,84 @@ type SubjectsViewProps = {
 };
 
 export default function SubjectsView({ subjects, setSubjects, selectedSubjectId, setSelectedSubjectId }: SubjectsViewProps) {
+  const [isAddingCourse, setIsAddingCourse] = useState(false);
+  const [newCourseName, setNewCourseName] = useState('');
+  const [isAddingTopic, setIsAddingTopic] = useState(false);
+  const [newTopicTitle, setNewTopicTitle] = useState('');
+
   const selectedSubject = subjects.find(s => s.id === selectedSubjectId);
+
+  const addCourse = () => {
+    if (!newCourseName.trim()) return;
+    const newCourse: Subject = {
+      id: crypto.randomUUID(),
+      name: newCourseName,
+      color: ['#58a6ff', '#3fb950', '#d29922', '#f85149', '#bc8cff'][Math.floor(Math.random() * 5)],
+      readiness: 0,
+      topics: [],
+      examDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    };
+    setSubjects([...subjects, newCourse]);
+    setNewCourseName('');
+    setIsAddingCourse(false);
+  };
+
+  const deleteCourse = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSubjects(subjects.filter(s => s.id !== id));
+    if (selectedSubjectId === id) setSelectedSubjectId(null);
+  };
+
+  const addTopic = () => {
+    if (!newTopicTitle.trim() || !selectedSubjectId) return;
+    const newTopic: Topic = {
+      id: crypto.randomUUID(),
+      subjectId: selectedSubjectId,
+      title: newTopicTitle,
+      difficulty: 'medium',
+      status: 'todo',
+      spacedRepetitionLevel: 0
+    };
+    
+    setSubjects(subjects.map(s => {
+      if (s.id === selectedSubjectId) {
+        return { ...s, topics: [...s.topics, newTopic] };
+      }
+      return s;
+    }));
+    setNewTopicTitle('');
+    setIsAddingTopic(false);
+  };
+
+  const toggleTopicStatus = (topicId: string) => {
+    setSubjects(subjects.map(s => {
+      if (s.id === selectedSubjectId) {
+        const newTopics = s.topics.map(t => {
+          if (t.id === topicId) {
+            const nextStatus = t.status === 'todo' ? 'in-progress' : t.status === 'in-progress' ? 'completed' : 'todo';
+            return { ...t, status: nextStatus };
+          }
+          return t;
+        });
+        const completedCount = newTopics.filter(t => t.status === 'completed').length;
+        const readiness = Math.round((completedCount / (newTopics.length || 1)) * 100);
+        return { ...s, topics: newTopics, readiness };
+      }
+      return s;
+    }));
+  };
+
+  const deleteTopic = (topicId: string) => {
+    setSubjects(subjects.map(s => {
+      if (s.id === selectedSubjectId) {
+        const newTopics = s.topics.filter(t => t.id !== topicId);
+        const completedCount = newTopics.filter(t => t.status === 'completed').length;
+        const readiness = Math.round((completedCount / (newTopics.length || 1)) * 100);
+        return { ...s, topics: newTopics, readiness };
+      }
+      return s;
+    }));
+  };
 
   return (
     <div className="h-full flex flex-col">
@@ -52,12 +129,65 @@ export default function SubjectsView({ subjects, setSubjects, selectedSubjectId,
               className="pl-10 pr-4 py-2 bg-[#161b22] border border-[#30363d] rounded-xl text-sm text-[#c9d1d9] outline-none w-64 focus:ring-1 focus:ring-[#58a6ff]"
             />
           </div>
-          <button className="px-5 py-2 bg-[#58a6ff] text-[#0b0e14] rounded-xl text-sm font-black flex items-center gap-2 hover:bg-[#58a6ff]/90 transition-all shadow-lg shadow-[#58a6ff]/10">
+          <button 
+            onClick={() => setIsAddingCourse(true)}
+            className="px-5 py-2 bg-[#58a6ff] text-[#0b0e14] rounded-xl text-sm font-black flex items-center gap-2 hover:bg-[#58a6ff]/90 transition-all shadow-lg shadow-[#58a6ff]/10"
+          >
             <Plus size={18} />
             Add Course
           </button>
         </div>
       </div>
+
+      {/* Add Course Modal */}
+      <AnimatePresence>
+        {isAddingCourse && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsAddingCourse(false)}
+              className="absolute inset-0 bg-[#0b0e14]/80 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="w-full max-w-md bg-[#161b22] border border-[#30363d] rounded-3xl p-8 z-10 shadow-2xl relative"
+            >
+              <h2 className="text-2xl font-black text-white mb-6">New Course</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-[10px] font-bold text-[#8b949e] uppercase tracking-widest block mb-2">Course Name</label>
+                  <input 
+                    autoFocus
+                    value={newCourseName}
+                    onChange={(e) => setNewCourseName(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && addCourse()}
+                    placeholder="e.g. Theoretical Physics"
+                    className="w-full bg-[#0b0e14] border border-[#30363d] p-4 rounded-xl text-[#c9d1d9] outline-none focus:border-[#58a6ff] transition-all"
+                  />
+                </div>
+                <div className="flex gap-3 pt-4">
+                  <button 
+                    onClick={() => setIsAddingCourse(false)}
+                    className="flex-1 py-4 rounded-xl text-sm font-bold text-[#8b949e] hover:bg-white/5 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={addCourse}
+                    className="flex-1 py-4 bg-[#58a6ff] text-[#0b0e14] rounded-xl text-sm font-black shadow-lg shadow-[#58a6ff]/20"
+                  >
+                    Create Course
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {!selectedSubjectId ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -72,8 +202,11 @@ export default function SubjectsView({ subjects, setSubjects, selectedSubjectId,
                 <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-white text-xl font-black shadow-inner shadow-black/20" style={{ backgroundColor: subject.color }}>
                   {subject.name.substring(0, 2).toUpperCase()}
                 </div>
-                <button className="p-2 text-[#8b949e] hover:bg-[#30363d]/50 rounded-lg">
-                  <MoreVertical size={20} />
+                <button 
+                  onClick={(e) => deleteCourse(subject.id, e)}
+                  className="p-2 text-[#8b949e] hover:bg-[#f85149]/10 hover:text-[#f85149] rounded-lg transition-all"
+                >
+                  <Trash2 size={20} />
                 </button>
               </div>
               <h3 className="text-xl font-black text-white group-hover:text-[#58a6ff] transition-colors mb-2 tracking-tight">{subject.name}</h3>
@@ -117,15 +250,18 @@ export default function SubjectsView({ subjects, setSubjects, selectedSubjectId,
 
                 <div className="space-y-4">
                   {selectedSubject?.topics.map(topic => (
-                    <div key={topic.id} className="flex items-center justify-between p-5 bg-[#0b0e14]/50 rounded-2xl border border-[#30363d] group hover:border-[#58a6ff]/50 transition-all">
+                    <div key={topic.id} className="flex items-center justify-between p-5 bg-[#0b0e14]/50 rounded-2xl border border-[#30363d] group hover:border-[#58a6ff]/20 transition-all">
                        <div className="flex items-center gap-5">
-                          <div className={cn(
-                            "w-11 h-11 rounded-xl flex items-center justify-center border",
-                            topic.status === 'completed' ? "bg-[#3fb950]/10 text-[#3fb950] border-[#3fb950]/20" :
-                            topic.status === 'in-progress' ? "bg-[#58a6ff]/10 text-[#58a6ff] border-[#58a6ff]/20" : "bg-[#21262d] text-[#8b949e] border-[#30363d]"
+                          <button 
+                            onClick={() => toggleTopicStatus(topic.id)}
+                            className={cn(
+                            "w-11 h-11 rounded-xl flex items-center justify-center border transition-all cursor-pointer",
+                            topic.status === 'completed' ? "bg-[#3fb950]/20 text-[#3fb950] border-[#3fb950]/40" :
+                            topic.status === 'in-progress' ? "bg-[#58a6ff]/20 text-[#58a6ff] border-[#58a6ff]/40" : "bg-[#21262d] text-[#8b949e] border-[#30363d] hover:border-[#8b949e]"
                           )}>
-                             {topic.status === 'completed' ? <CheckCircle2 size={22} /> : <FileText size={22} />}
-                          </div>
+                             {topic.status === 'completed' ? <CheckCircle2 size={22} /> : 
+                              topic.status === 'in-progress' ? <Activity size={22} /> : <FileText size={22} />}
+                          </button>
                           <div>
                             <h4 className="font-bold text-[#c9d1d9] group-hover:text-white transition-colors">{topic.title}</h4>
                             <div className="flex items-center gap-4 mt-2">
@@ -136,24 +272,49 @@ export default function SubjectsView({ subjects, setSubjects, selectedSubjectId,
                                )}>
                                  {topic.difficulty}
                                </span>
-                               <span className="text-[#8b949e] text-[10px] font-bold uppercase tracking-tight">Last reviewed 2d ago</span>
+                               <span className="text-[#8b949e] text-[10px] font-bold uppercase tracking-tight">Status: {topic.status}</span>
                             </div>
                           </div>
                        </div>
                        <div className="flex gap-2">
+                          <button className="p-2.5 text-[#8b949e] hover:text-[#f85149] hover:bg-[#f85149]/10 rounded-xl transition-all" title="Delete Topic" onClick={() => deleteTopic(topic.id)}>
+                            <Trash2 size={18} />
+                          </button>
                           <button className="p-2.5 text-[#8b949e] hover:text-[#58a6ff] hover:bg-[#161b22] rounded-xl transition-all" title="AI Tutor">
                             <MessageSquare size={18} />
-                          </button>
-                          <button className="p-2.5 text-[#8b949e] hover:text-[#58a6ff] hover:bg-[#161b22] rounded-xl transition-all" title="Study Topic">
-                            <Brain size={18} />
                           </button>
                        </div>
                     </div>
                   ))}
-                  <button className="w-full py-5 border-2 border-dashed border-[#30363d] rounded-2xl text-xs font-bold text-[#8b949e] hover:bg-[#161b22] hover:border-[#58a6ff] transition-all flex items-center justify-center gap-2">
-                    <Plus size={16} />
-                    Add New Topic or Upload Note
-                  </button>
+
+                  {isAddingTopic ? (
+                    <motion.div 
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-5 bg-[#161b22] border border-[#58a6ff] rounded-2xl flex items-center gap-4"
+                    >
+                      <input 
+                        autoFocus
+                        value={newTopicTitle}
+                        onChange={(e) => setNewTopicTitle(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && addTopic()}
+                        placeholder="Topic title..."
+                        className="flex-1 bg-transparent border-none outline-none text-[#c9d1d9] font-bold"
+                      />
+                      <div className="flex gap-2">
+                         <button onClick={() => setIsAddingTopic(false)} className="px-4 py-2 text-xs font-bold text-[#8b949e] hover:text-[#c9d1d9]">Cancel</button>
+                         <button onClick={addTopic} className="px-4 py-2 bg-[#58a6ff] text-[#0b0e14] rounded-lg text-xs font-black">Add</button>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <button 
+                      onClick={() => setIsAddingTopic(true)}
+                      className="w-full py-5 border-2 border-dashed border-[#30363d] rounded-2xl text-xs font-bold text-[#8b949e] hover:bg-[#161b22] hover:border-[#58a6ff] transition-all flex items-center justify-center gap-2"
+                    >
+                      <Plus size={16} />
+                      Add New Topic
+                    </button>
+                  )}
                 </div>
              </section>
           </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { 
   Plus, 
   ChevronLeft, 
@@ -10,6 +10,7 @@ import {
   TrendingUp,
   Target
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Subject, Deadline } from '../types';
 import { cn } from '../lib/utils';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns';
@@ -17,11 +18,28 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSam
 type PlannerViewProps = {
   subjects: Subject[];
   deadlines: Deadline[];
+  setDeadlines: React.Dispatch<React.SetStateAction<Deadline[]>>;
 };
 
-export default function PlannerView({ subjects, deadlines }: PlannerViewProps) {
+type Goal = {
+  id: string;
+  label: string;
+  done: boolean;
+};
+
+export default function PlannerView({ subjects, deadlines, setDeadlines }: PlannerViewProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
-  
+  const [goals, setGoals] = useState<Goal[]>([
+    { id: '1', label: "Revise DNA Replication", done: true },
+    { id: '2', label: "Complete Calc Set 5", done: false },
+    { id: '3', label: "Read Econ Chapter 3", done: false },
+  ]);
+  const [isAddingDeadline, setIsAddingDeadline] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [newDeadlineTitle, setNewDeadlineTitle] = useState('');
+  const [newDeadlineType, setNewDeadlineType] = useState<'exam' | 'assignment' | 'presentation'>('exam');
+  const [newDeadlineSubjectId, setNewDeadlineSubjectId] = useState('');
+
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(monthStart);
   const calendarDays = eachDayOfInterval({
@@ -32,8 +50,96 @@ export default function PlannerView({ subjects, deadlines }: PlannerViewProps) {
   const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
   const prevMonth = () => setCurrentDate(subMonths(currentDate, 1));
 
+  const addDeadline = () => {
+    if (!newDeadlineTitle.trim() || !selectedDate || !newDeadlineSubjectId) return;
+    const newDeadline: Deadline = {
+      id: crypto.randomUUID(),
+      title: newDeadlineTitle,
+      date: format(selectedDate, 'yyyy-MM-dd'),
+      type: newDeadlineType,
+      subjectId: newDeadlineSubjectId
+    };
+    setDeadlines([...deadlines, newDeadline]);
+    setIsAddingDeadline(false);
+    setNewDeadlineTitle('');
+  };
+
+  const deleteDeadline = (id: string) => {
+    setDeadlines(deadlines.filter(d => d.id !== id));
+  };
+
+  const toggleGoal = (id: string) => {
+    setGoals(goals.map(g => g.id === id ? { ...g, done: !g.done } : g));
+  };
+
+  const addGoal = () => {
+    const label = prompt("Enter new objective:");
+    if (label) {
+      setGoals([...goals, { id: crypto.randomUUID(), label, done: false }]);
+    }
+  };
+
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 h-full">
+    <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 h-full relative">
+      {/* Add Deadline Modal */}
+      <AnimatePresence>
+        {isAddingDeadline && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-[#0b0e14]/80 backdrop-blur-sm">
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-[#161b22] border border-[#30363d] w-full max-w-md rounded-3xl p-8 shadow-2xl"
+            >
+              <h2 className="text-2xl font-black text-white mb-6">New Deadline</h2>
+              <div className="space-y-4">
+                <div className="bg-[#0b0e14] border border-[#30363d] p-3 rounded-xl text-center mb-4">
+                  <p className="text-[10px] font-bold text-[#8b949e] uppercase">Selected Date</p>
+                  <p className="font-bold text-[#58a6ff]">{selectedDate ? format(selectedDate, 'PP') : 'None'}</p>
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-[#8b949e] uppercase block mb-1">Title</label>
+                  <input 
+                    value={newDeadlineTitle}
+                    onChange={(e) => setNewDeadlineTitle(e.target.value)}
+                    placeholder="e.g. History Essay"
+                    className="w-full bg-[#0b0e14] border border-[#30363d] p-3 rounded-xl text-white outline-none focus:border-[#58a6ff]"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-[#8b949e] uppercase block mb-1">Subject</label>
+                  <select 
+                    value={newDeadlineSubjectId}
+                    onChange={(e) => setNewDeadlineSubjectId(e.target.value)}
+                    className="w-full bg-[#0b0e14] border border-[#30363d] p-3 rounded-xl text-white outline-none focus:border-[#58a6ff]"
+                  >
+                    <option value="">Select Subject</option>
+                    {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                  </select>
+                </div>
+                <div className="flex gap-2">
+                   {['exam', 'assignment', 'presentation'].map(type => (
+                     <button
+                       key={type}
+                       onClick={() => setNewDeadlineType(type as any)}
+                       className={cn(
+                        "flex-1 py-2 rounded-lg text-[10px] font-black uppercase transition-all",
+                        newDeadlineType === type ? "bg-[#58a6ff] text-[#0b0e14]" : "bg-[#161b22] border border-[#30363d] text-[#8b949e]"
+                       )}
+                     >
+                       {type}
+                     </button>
+                   ))}
+                </div>
+                <div className="flex gap-3 pt-6">
+                  <button onClick={() => setIsAddingDeadline(false)} className="flex-1 py-4 text-[#8b949e] font-bold">Cancel</button>
+                  <button onClick={addDeadline} className="flex-1 py-4 bg-[#58a6ff] text-[#0b0e14] font-black rounded-xl">Save</button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
       {/* Calendar Section */}
       <div className="xl:col-span-3 space-y-6">
         <div className="bento-card bg-[#161b22] border-[#30363d] overflow-hidden">
@@ -69,10 +175,17 @@ export default function PlannerView({ subjects, deadlines }: PlannerViewProps) {
                 const dayDeadlines = deadlines.filter(d => isSameDay(new Date(d.date), day));
                 const isToday = isSameDay(day, new Date());
                 return (
-                  <div key={day.toString()} className={cn(
-                    "bg-[#161b22] h-32 p-3 group hover:bg-[#0b0e14] transition-all relative border-transparent border",
-                    isToday && "bg-[#58a6ff]/5"
-                  )}>
+                  <div 
+                    key={day.toString()} 
+                    onClick={() => {
+                      setSelectedDate(day);
+                      setIsAddingDeadline(true);
+                    }}
+                    className={cn(
+                      "bg-[#161b22] h-32 p-3 group hover:bg-[#0b0e14] transition-all relative border-transparent border cursor-cell",
+                      isToday && "bg-[#58a6ff]/5"
+                    )}
+                  >
                     <span className={cn(
                       "text-sm font-black transition-all",
                       isToday ? "text-[#58a6ff] scale-110 origin-left inline-block" : "text-[#8b949e]"
@@ -81,7 +194,14 @@ export default function PlannerView({ subjects, deadlines }: PlannerViewProps) {
                     </span>
                     <div className="mt-3 space-y-1.5 overflow-hidden">
                        {dayDeadlines.map(d => (
-                         <div key={d.id} className="text-[9px] font-black bg-[#58a6ff]/10 text-[#58a6ff] p-2 rounded-lg truncate border border-[#58a6ff]/20 flex items-center gap-1.5">
+                         <div 
+                           key={d.id} 
+                           onClick={(e) => {
+                             e.stopPropagation();
+                             if (confirm('Delete this deadline?')) deleteDeadline(d.id);
+                           }}
+                           className="text-[9px] font-black bg-[#58a6ff]/10 text-[#58a6ff] p-2 rounded-lg truncate border border-[#58a6ff]/20 flex items-center gap-1.5 hover:bg-[#f85149]/20 hover:text-[#f85149] transition-all"
+                         >
                             <div className="w-1.5 h-1.5 rounded-full bg-[#58a6ff] shadow-[0_0_5px_rgba(88,166,255,1)]" />
                             {d.title}
                          </div>
@@ -108,12 +228,12 @@ export default function PlannerView({ subjects, deadlines }: PlannerViewProps) {
                Daily Roadmap
             </h3>
             <div className="space-y-4">
-               {[
-                 { label: "Revise DNA Replication", done: true },
-                 { label: "Complete Calc Set 5", done: false },
-                 { label: "Read Econ Chapter 3", done: false },
-               ].map((goal, i) => (
-                 <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-[#0b0e14]/50 border border-[#30363d] hover:border-[#58a6ff]/40 transition-all cursor-pointer group">
+               {goals.map((goal, i) => (
+                 <div 
+                   key={goal.id} 
+                   onClick={() => toggleGoal(goal.id)}
+                   className="flex items-center gap-4 p-4 rounded-2xl bg-[#0b0e14]/50 border border-[#30363d] hover:border-[#58a6ff]/40 transition-all cursor-pointer group"
+                 >
                     <div className={cn(
                       "w-7 h-7 rounded-xl border-2 flex items-center justify-center transition-all shadow-inner",
                       goal.done ? "bg-[#3fb950] border-[#3fb950] text-[#0b0e14]" : "border-[#30363d] group-hover:border-[#58a6ff]/50"
@@ -126,7 +246,10 @@ export default function PlannerView({ subjects, deadlines }: PlannerViewProps) {
                  </div>
                ))}
             </div>
-            <button className="w-full mt-6 py-4 border-2 border-dashed border-[#30363d] rounded-[2rem] text-[10px] font-black uppercase text-[#8b949e] tracking-widest hover:border-[#58a6ff] hover:text-[#58a6ff] transition-all">
+            <button 
+              onClick={addGoal}
+              className="w-full mt-6 py-4 border-2 border-dashed border-[#30363d] rounded-[2rem] text-[10px] font-black uppercase text-[#8b949e] tracking-widest hover:border-[#58a6ff] hover:text-[#58a6ff] transition-all"
+            >
               + New Objective
             </button>
          </div>

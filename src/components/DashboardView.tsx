@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { format } from 'date-fns';
 import { 
   CheckCircle2, 
   Clock, 
@@ -32,7 +33,12 @@ type DashboardViewProps = {
 
 export default function DashboardView({ subjects, deadlines, onViewSubjects, onViewPlanner }: DashboardViewProps) {
   const averageReadiness = Math.round(subjects.reduce((acc, sub) => acc + sub.readiness, 0) / Math.max(subjects.length, 1));
+  const masteredCount = subjects.reduce((acc, s) => acc + s.topics.filter(t => t.status === 'completed').length, 0);
+  const totalTopics = subjects.reduce((acc, s) => acc + s.topics.length, 0);
   
+  const mostUrgentSubject = [...subjects].sort((a, b) => (a.readiness || 0) - (b.readiness || 0))[0];
+  const urgentDeadline = [...deadlines].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
+
   const greeting = useMemo(() => {
     const hour = new Date().getHours();
     if (hour < 12) return "Good morning";
@@ -66,7 +72,7 @@ export default function DashboardView({ subjects, deadlines, onViewSubjects, onV
             </div>
             <div>
               <p className="text-[10px] text-[#8b949e] font-bold uppercase tracking-widest">Concepts Mastered</p>
-              <p className="text-2xl font-black text-white">12 / 48</p>
+              <p className="text-2xl font-black text-white">{masteredCount} / {totalTopics || 0}</p>
             </div>
           </div>
         </div>
@@ -82,15 +88,17 @@ export default function DashboardView({ subjects, deadlines, onViewSubjects, onV
             </div>
             <div className="flex items-center gap-8">
               <div className="w-24 h-24 rounded-full border-[6px] border-[#3fb950] flex flex-col items-center justify-center shadow-[0_0_20px_rgba(63,185,80,0.2)]">
-                <span className="text-2xl font-black text-white Leading-none">84%</span>
+                <span className="text-2xl font-black text-white Leading-none">{mostUrgentSubject?.readiness || 0}%</span>
                 <span className="text-[8px] font-bold uppercase text-[#3fb950]">Ready</span>
               </div>
               <div>
-                <h2 className="text-2xl font-black text-white leading-tight">Advanced Mathematics</h2>
-                <p className="text-[#8b949e] text-sm mt-1">Final Exam in 12 days • May 15, 2026</p>
+                <h2 className="text-2xl font-black text-white leading-tight">{mostUrgentSubject?.name || 'No Courses Yet'}</h2>
+                <p className="text-[#8b949e] text-sm mt-1">
+                  {urgentDeadline ? `${urgentDeadline.title} on ${format(new Date(urgentDeadline.date), 'MMM d')}` : 'No upcoming deadlines'}
+                </p>
                 <div className="flex gap-2 mt-4">
-                  <span className="badge-bento badge-primary">14 Units Done</span>
-                  <span className="badge-bento badge-danger">3 Weak Spots</span>
+                  <span className="badge-bento badge-primary">{mostUrgentSubject?.topics.filter(t => t.status === 'completed').length || 0} Units Done</span>
+                  <span className="badge-bento badge-danger">{mostUrgentSubject?.topics.filter(t => t.status === 'todo').length || 0} Weak Spots</span>
                 </div>
               </div>
             </div>

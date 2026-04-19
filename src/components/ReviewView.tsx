@@ -16,12 +16,20 @@ type ReviewViewProps = {
 };
 
 export default function ReviewView({ subjects }: ReviewViewProps) {
-  const reviewQueue = [
-    { id: '1', title: 'DNA Replication', subject: 'Molecular Biology', diff: 'medium', due: 'Today' },
-    { id: '2', title: 'Supply & Demand', subject: 'Intro to Economics', diff: 'easy', due: 'Today' },
-    { id: '3', title: 'Complex Numbers', subject: 'Advanced Mathematics', diff: 'hard', due: 'In 2h' },
-    { id: '4', title: 'Macroeconomics', subject: 'Intro to Economics', diff: 'medium', due: 'Tomorrow' },
-  ];
+  const reviewQueue = subjects.flatMap(s => 
+    s.topics.filter(t => t.status !== 'completed').map(t => ({
+      id: t.id,
+      title: t.title,
+      subject: s.name,
+      diff: t.difficulty,
+      due: 'Today'
+    }))
+  ).slice(0, 10);
+
+  const pendingCount = subjects.reduce((acc, s) => acc + s.topics.filter(t => t.status !== 'completed').length, 0);
+  const masteredCount = subjects.reduce((acc, s) => acc + s.topics.filter(t => t.status === 'completed').length, 0);
+  const totalTopics = subjects.reduce((acc, s) => acc + s.topics.length, 0);
+  const retentionRate = totalTopics > 0 ? Math.round((masteredCount / totalTopics) * 100) : 0;
 
   return (
     <div className="max-w-4xl mx-auto space-y-10 pb-12">
@@ -33,26 +41,29 @@ export default function ReviewView({ subjects }: ReviewViewProps) {
            </h1>
            <p className="text-[#8b949e] mt-2 font-medium">Neural-optimized review window (SM-2 Algorithm).</p>
          </div>
-         <span className="badge-bento badge-primary text-xs uppercase tracking-[0.2em] px-5 py-2">4 PENDING</span>
+          <span className="badge-bento badge-primary text-xs uppercase tracking-[0.2em] px-5 py-2">{pendingCount} PENDING</span>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
          <div className="bento-card flex flex-col justify-between h-[180px]">
             <p className="text-[10px] text-[#8b949e] font-black uppercase tracking-[0.2em] mb-4 border-b border-white/5 pb-2">Daily Quota Index</p>
             <div className="flex items-baseline gap-3">
-               <span className="text-5xl font-black text-white">12</span>
-               <span className="text-[#8b949e] font-bold text-xl">/ 20</span>
+               <span className="text-5xl font-black text-white">{masteredCount}</span>
+               <span className="text-[#8b949e] font-bold text-xl">/ {totalTopics}</span>
             </div>
             <div className="mt-6 h-2 w-full bg-[#161b22] rounded-full overflow-hidden border border-white/5">
-              <div className="h-full bg-[#58a6ff] w-[60%] rounded-full shadow-[0_0_12px_rgba(88,166,255,0.4)]"></div>
+              <div 
+                className="h-full bg-[#58a6ff] rounded-full shadow-[0_0_12px_rgba(88,166,255,0.4)] transition-all"
+                style={{ width: `${totalTopics > 0 ? (masteredCount / totalTopics) * 100 : 0}%` }}
+              ></div>
             </div>
          </div>
          <div className="bento-card bg-gradient-to-br from-[#1c1917] to-[#0c0a09] border-[#d29922]/30 flex flex-col justify-between h-[180px]">
             <p className="text-[10px] text-[#d29922] font-black uppercase tracking-[0.2em] mb-4 border-b border-white/5 pb-2">Active Retention</p>
-            <span className="text-5xl font-black text-white">92%</span>
+            <span className="text-5xl font-black text-white">{retentionRate}%</span>
             <p className="text-[10px] text-[#d29922] font-bold mt-2 flex items-center gap-2 uppercase tracking-widest">
               <Sparkles size={12} className="animate-pulse" />
-              TOP 5% IN BATCH
+              {retentionRate > 80 ? 'TOP 5% IN BATCH' : 'OPTIMIZING NEURAL PATH'}
             </p>
          </div>
          <div className="bento-card border-dashed border-[#30363d] flex items-center justify-center h-[180px] bg-transparent">
@@ -124,7 +135,7 @@ export default function ReviewView({ subjects }: ReviewViewProps) {
          <div className="p-10 bg-gradient-to-br from-[#1e293b] to-[#0f172a] text-center border-t border-[#30363d]">
             <h3 className="text-2xl font-black text-white mb-2 tracking-tight uppercase italic opacity-20 text-[10px] tracking-[0.5em] mb-4">Neural Accelerator Active</h3>
             <h3 className="text-2xl font-black text-white mb-2 tracking-tight">System Ready for Batch Optimization</h3>
-            <p className="text-[#8b949e] text-sm mb-10 font-medium max-w-lg mx-auto leading-relaxed">Mastering these 4 topics will push your GradeOS global readiness index to <span className="text-[#3fb950] font-black">84%</span>.</p>
+            <p className="text-[#8b949e] text-sm mb-10 font-medium max-w-lg mx-auto leading-relaxed">Mastering these {pendingCount} topics will push your GradeOS global readiness index to <span className="text-[#3fb950] font-black">100%</span>.</p>
             <button className="px-12 py-5 bg-[#58a6ff] text-[#0b0e14] rounded-[2rem] font-black text-xl hover:shadow-2xl hover:shadow-[#58a6ff]/20 active:scale-95 transition-all flex items-center justify-center gap-3 mx-auto shadow-xl shadow-[#58a6ff]/10">
                Start Smart Session
                <ArrowRight size={24} />

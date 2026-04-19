@@ -159,7 +159,10 @@ export default function App() {
               <Bell size={20} />
               <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-[#f85149] rounded-full border-2 border-[#0b0e14]"></span>
             </button>
-            <button className="px-5 py-2 bg-[#58a6ff] text-[#0b0e14] rounded-xl text-sm font-black hover:bg-[#58a6ff]/90 transition-all flex items-center gap-2 shadow-lg shadow-[#58a6ff]/20">
+            <button 
+              onClick={() => setActiveView('review')}
+              className="px-5 py-2 bg-[#58a6ff] text-[#0b0e14] rounded-xl text-sm font-black hover:bg-[#58a6ff]/90 transition-all flex items-center gap-2 shadow-lg shadow-[#58a6ff]/20"
+            >
               <Clock size={16} />
               Study Now
             </button>
@@ -197,6 +200,7 @@ export default function App() {
                 <PlannerView 
                   subjects={subjects} 
                   deadlines={deadlines}
+                  setDeadlines={setDeadlines}
                 />
               )}
               {activeView === 'quiz' && (

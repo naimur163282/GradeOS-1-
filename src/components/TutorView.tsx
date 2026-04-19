@@ -24,15 +24,19 @@ type Message = {
 };
 
 export default function TutorView({ subjects }: TutorViewProps) {
-  const [selectedSubject, setSelectedSubject] = useState<Subject>(subjects[0]);
+  const [selectedSubject, setSelectedSubject] = useState<Subject | null>(subjects.length > 0 ? subjects[0] : null);
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState<Message[]>([
-    { role: 'model', content: `Hi Naimur! I'm your GradeOS AI Tutor. How can I help you with **${subjects[0].name}** today? I've analyzed your recent notes on Molecular Biology.` }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    if (selectedSubject && messages.length === 0) {
+      setMessages([{ role: 'model', content: `Hi! I'm your GradeOS AI Tutor. How can I help you with **${selectedSubject.name}** today?` }]);
+    }
+  }, [selectedSubject, messages.length]);
+
   const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isLoading || !selectedSubject) return;
 
     const userMsg: Message = { role: 'user', content: input };
     setMessages(prev => [...prev, userMsg]);
@@ -66,7 +70,7 @@ export default function TutorView({ subjects }: TutorViewProps) {
                onClick={() => setSelectedSubject(s)}
                className={cn(
                  "w-full text-left px-5 py-4 rounded-2xl transition-all flex items-center justify-between group border",
-                 selectedSubject.id === s.id 
+                 selectedSubject?.id === s.id 
                   ? "bg-[#58a6ff]/10 text-[#58a6ff] border-[#58a6ff]/30 shadow-lg shadow-[#58a6ff]/5" 
                   : "hover:bg-[#161b22] text-[#8b949e] border-transparent"
                )}
@@ -75,7 +79,7 @@ export default function TutorView({ subjects }: TutorViewProps) {
                   <div className="w-2.5 h-2.5 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.2)]" style={{ backgroundColor: s.color }} />
                   <span className="text-sm font-bold truncate max-w-[120px]">{s.name}</span>
                </div>
-               {selectedSubject.id === s.id && <Sparkles size={14} className="text-[#58a6ff] animate-pulse" />}
+               {selectedSubject?.id === s.id && <Sparkles size={14} className="text-[#58a6ff] animate-pulse" />}
              </button>
            ))}
         </div>
@@ -101,7 +105,7 @@ export default function TutorView({ subjects }: TutorViewProps) {
                <Brain size={28} />
              </div>
              <div>
-               <h3 className="font-black text-white text-lg tracking-tight">{selectedSubject.name} AI Tutor</h3>
+               <h3 className="font-black text-white text-lg tracking-tight">{selectedSubject?.name || 'Academic'} AI Tutor</h3>
                <p className="text-xs text-[#3fb950] font-bold flex items-center gap-1.5">
                  <span className="w-2 h-2 bg-[#3fb950] rounded-full animate-pulse"></span>
                  Online • Context Synchronized
