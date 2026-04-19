@@ -14,11 +14,9 @@ import {
   TrendingUp,
   ChevronRight,
   GraduationCap,
-  Lock
+  Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { auth } from './lib/firebase';
 import { cn } from './lib/utils';
 import { MOCK_SUBJECTS, MOCK_DEADLINES } from './constants';
 import { Subject, Topic, Deadline } from './types';
@@ -29,25 +27,33 @@ import QuizView from './components/QuizView';
 import ReviewView from './components/ReviewView';
 import TutorView from './components/TutorView';
 import DeveloperView from './components/DeveloperView';
-import LoginView from './components/LoginView';
 
 type ViewType = 'dashboard' | 'subjects' | 'planner' | 'quiz' | 'review' | 'tutor' | 'settings' | 'developer';
 
 export default function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isInitializing, setIsInitializing] = useState(true);
   const [activeView, setActiveView] = useState<ViewType>('dashboard');
-  const [subjects, setSubjects] = useState<Subject[]>(MOCK_SUBJECTS);
-  const [deadlines, setDeadlines] = useState<Deadline[]>(MOCK_DEADLINES);
+  
+  // Persistence Layer: Initialize from Local Storage or Defaults
+  const [subjects, setSubjects] = useState<Subject[]>(() => {
+    const saved = localStorage.getItem('gradeos_subjects');
+    return saved ? JSON.parse(saved) : MOCK_SUBJECTS;
+  });
+  
+  const [deadlines, setDeadlines] = useState<Deadline[]>(() => {
+    const saved = localStorage.getItem('gradeos_deadlines');
+    return saved ? JSON.parse(saved) : MOCK_DEADLINES;
+  });
+
   const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(null);
 
+  // Sync state to Local Storage whenever it changes
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsAuthenticated(!!user);
-      setIsInitializing(false);
-    });
-    return () => unsubscribe();
-  }, []);
+    localStorage.setItem('gradeos_subjects', JSON.stringify(subjects));
+  }, [subjects]);
+
+  useEffect(() => {
+    localStorage.setItem('gradeos_deadlines', JSON.stringify(deadlines));
+  }, [deadlines]);
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -58,27 +64,6 @@ export default function App() {
     { id: 'tutor', label: 'AI Tutor', icon: HelpCircle },
     { id: 'developer', label: 'Developer', icon: User },
   ];
-
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      setActiveView('dashboard');
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
-
-  if (isInitializing) {
-    return (
-      <div className="h-screen bg-[#0b0e14] flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-[#58a6ff] border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return <LoginView />;
-  }
 
   return (
     <div className="flex h-screen bg-[#0b0e14] overflow-hidden text-[#c9d1d9] font-sans">
@@ -123,27 +108,17 @@ export default function App() {
             <Settings size={18} />
             Settings
           </button>
-          <button 
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-[#f85149]/70 hover:bg-[#f85149]/10 hover:text-[#f85149] transition-all"
-          >
-            <Lock size={18} />
-            Initialize Zero-Trust
-          </button>
+          
           <div className="mt-8 flex items-center gap-4 px-2">
             <div className="w-10 h-10 rounded-full bg-[#58a6ff] overflow-hidden flex items-center justify-center text-[#0b0e14] font-black text-xs">
-              {auth.currentUser?.photoURL ? (
-                <img src={auth.currentUser.photoURL} alt="" referrerPolicy="no-referrer" />
-              ) : (
-                (auth.currentUser?.displayName?.split(' ').map(n => n[0]).join('') || 'NR')
-              )}
+              NR
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold text-white truncate">
-                {auth.currentUser?.displayName || 'Naimur Rashid'}
+                Local Profile
               </p>
               <p className="text-[10px] text-[#8b949e] font-bold uppercase tracking-wider truncate">
-                {auth.currentUser?.email || 'IBA Executive MBA'}
+                Saved on Device
               </p>
             </div>
           </div>
