@@ -6,7 +6,7 @@
 
 <p><em>Textile Engineer &amp; Denim Washing Specialist &nbsp;|&nbsp; Web Developer &nbsp;|&nbsp; PGD Candidate — IBA, University of Dhaka</em></p>
 
-### `Textile Engineer` · `Denim Washing Specialist` · `Web Developer` · `PGD Candidate`
+### `Textile Engineer` · `Denim Washing Specialist` · `Web Developer` · `PGD Running`
 
 [![Portfolio](https://img.shields.io/badge/🌐_Portfolio-mdnaimurrashid.netlify.app-0f172a?style=for-the-badge&logoColor=white)](https://mdnaimurrashid.netlify.app)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com)
