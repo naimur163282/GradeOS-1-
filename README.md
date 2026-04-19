@@ -9,7 +9,9 @@
 ╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═╝
 ```
 
-### `Textile Engineer` · `Denim Washing Specialist` · `Web Developer` ·
+<img src="https://i.ibb.co/HfJH0SNP/1000178339.jpg" width="120" height="120" style="border-radius: 50%;" alt="Md. Naimur Rashid" />
+
+### `Textile Engineer` · `Denim Washing Specialist` · `Web Developer` · `PGD Candidate`
 
 [![Portfolio](https://img.shields.io/badge/🌐_Portfolio-mdnaimurrashid.netlify.app-0f172a?style=for-the-badge&logoColor=white)](https://mdnaimurrashid.netlify.app)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com)
@@ -26,7 +28,7 @@ name: Md. Naimur Rashid
 location: Narayanganj, Bangladesh 🇧🇩
 current_role: Executive – Washing @ Fakir Apparels Ltd.
 education:
-  - PGD in Garments Business @ IBA (ongoing)
+  - PGD in Garments Business @ IBA, University of Dhaka (ongoing)
   - BSc in Textile Engineering @ BUFT
 specialization: Denim Washing · Chemical Compliance · R&D
 buyers_worked_with: [H&M, ZARA, GAP, Burberry, Primark]
@@ -107,7 +109,7 @@ currently_building: AI-powered tools for the textile industry
 |---|---|---|
 | 🥇 Certificate of Excellence — Design System Thinking with AI | Grameenphone Academy | 2026 |
 | 🎓 BSc in Textile Engineering | BUFT | — |
-| 📘 Executive MBA (ongoing) | IBA, University of Dhaka | 2025– |
+| 📘 PGD in Garments Business (ongoing) | IBA, University of Dhaka | 2025– |
 
 ---
 
