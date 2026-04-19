@@ -9,7 +9,7 @@
 ╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═╝
 ```
 
-### `Textile Engineer` · `Denim Washing Specialist` · `Web Developer` · `MBA Candidate`
+### `Textile Engineer` · `Denim Washing Specialist` · `Web Developer` ·
 
 [![Portfolio](https://img.shields.io/badge/🌐_Portfolio-mdnaimurrashid.netlify.app-0f172a?style=for-the-badge&logoColor=white)](https://mdnaimurrashid.netlify.app)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com)
@@ -26,7 +26,6 @@ name: Md. Naimur Rashid
 location: Narayanganj, Bangladesh 🇧🇩
 current_role: Executive – Washing @ Fakir Apparels Ltd.
 education:
-  - Executive MBA @ IBA, University of Dhaka (ongoing)
   - PGD in Garments Business @ IBA (ongoing)
   - BSc in Textile Engineering @ BUFT
 specialization: Denim Washing · Chemical Compliance · R&D
