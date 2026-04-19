@@ -28,12 +28,21 @@ export default function DeveloperView() {
           animate={{ opacity: 1, scale: 1 }}
           className="relative group"
         >
-          <div className="w-48 h-48 md:w-64 md:h-64 rounded-[3rem] overflow-hidden border-2 border-[#30363d] group-hover:border-[#58a6ff] transition-all duration-500 shadow-2xl">
-            {/* Using a placeholder for the developer image */}
-            <div className="w-full h-full bg-[#161b22] flex items-center justify-center text-[#8b949e]">
-              <User size={80} className="group-hover:scale-110 transition-transform duration-500" />
+          <div className="w-48 h-48 md:w-64 md:h-64 rounded-[3rem] overflow-hidden border-2 border-[#30363d] group-hover:border-[#58a6ff] transition-all duration-500 shadow-2xl bg-[#161b22] relative">
+            <img 
+              src="https://i.ibb.co.com/mVycmQP8/1000184822.jpg" 
+              alt="Md. Naimur Rashid"
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              referrerPolicy="no-referrer"
+              onError={(e) => {
+                // Fallback to initial icon if image fails to load
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+            <div className="absolute inset-0 bg-[#161b22] flex items-center justify-center text-[#8b949e] -z-10">
+              <User size={80} />
             </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0b0e14] to-transparent opacity-60 group-hover:opacity-20 transition-opacity"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0b0e14] via-transparent to-transparent opacity-60 group-hover:opacity-20 transition-opacity"></div>
           </div>
           <div className="absolute -bottom-4 -right-4 w-16 h-16 bg-[#58a6ff] rounded-2xl flex items-center justify-center text-[#0b0e14] shadow-xl animate-bounce">
             <Code2 size={32} />

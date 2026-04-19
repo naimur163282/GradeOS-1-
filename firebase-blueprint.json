@@ -1,0 +1,110 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile and settings",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "dailyGoal": { "type": "number" },
+        "program": { "type": "string" },
+        "bio": { "type": "string" },
+        "avatar": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "email"]
+    },
+    "Subject": {
+      "title": "Subject",
+      "description": "Academic course or domain",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "color": { "type": "string" },
+        "category": { "type": "string" },
+        "progress": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "color"]
+    },
+    "Topic": {
+      "title": "Topic",
+      "description": "Specific sub-topic within a subject",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "status": { "type": "string", "enum": ["completed", "in_progress", "not_started"] },
+        "description": { "type": "string" },
+        "isHighYield": { "type": "boolean" }
+      },
+      "required": ["title", "status"]
+    },
+    "Deadline": {
+      "title": "Deadline",
+      "description": "Upcoming academic event or task",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "subjectId": { "type": "string" },
+        "type": { "type": "string", "enum": ["exam", "assignment", "lab", "quiz", "other"] },
+        "priority": { "type": "string", "enum": ["high", "medium", "low"] }
+      },
+      "required": ["title", "date", "type"]
+    },
+    "QuizResult": {
+      "title": "Quiz Result",
+      "description": "Outcome of an AI-generated quiz",
+      "type": "object",
+      "properties": {
+        "topic": { "type": "string" },
+        "subjectName": { "type": "string" },
+        "score": { "type": "number" },
+        "total": { "type": "number" },
+        "date": { "type": "string", "format": "date-time" }
+      },
+      "required": ["score", "total", "topic"]
+    },
+    "ReviewItem": {
+      "title": "Review Item",
+      "description": "Spaced repetition task",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "subjectName": { "type": "string" },
+        "difficulty": { "type": "string", "enum": ["easy", "medium", "hard"] },
+        "nextReview": { "type": "string", "format": "date-time" },
+        "lastReviewed": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "nextReview"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Main user document"
+    },
+    "/users/{userId}/subjects/{subjectId}": {
+      "schema": "Subject",
+      "description": "User custom subjects"
+    },
+    "/users/{userId}/subjects/{subjectId}/topics/{topicId}": {
+      "schema": "Topic",
+      "description": "Topics within a specific subject"
+    },
+    "/users/{userId}/deadlines/{deadlineId}": {
+      "schema": "Deadline",
+      "description": "User academic deadlines"
+    },
+    "/users/{userId}/quiz_results/{resultId}": {
+      "schema": "QuizResult",
+      "description": "Historical quiz performance"
+    },
+    "/users/{userId}/review_queue/{itemId}": {
+      "schema": "ReviewItem",
+      "description": "Active spaced-repetition queue"
+    }
+  }
+}
